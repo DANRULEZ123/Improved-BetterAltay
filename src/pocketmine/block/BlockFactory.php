@@ -429,6 +429,9 @@ class BlockFactory{
 	 * Returns whether a specified block ID is already registered in the block factory.
 	 */
 	public static function isRegistered(int $id) : bool{
+		if (!isset(self::$fullList[$id << 4])) {
+			return false;
+		}
 		$b = self::$fullList[$id << 4];
 		return $b !== null and !($b instanceof UnknownBlock);
 	}
