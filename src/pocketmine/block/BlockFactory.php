@@ -342,6 +342,7 @@ class BlockFactory{
 		//TODO: STRUCTURE_BLOCK
 
 		self::registerBlock(new Reserved6(Block::RESERVED6, 0, "reserved6"));
+		self::registerBlock(new Block(Block::SCULK, 0, "Sculk"));
 
 		for($id = 0, $size = self::$fullList->getSize() >> 4; $id < $size; ++$id){
 			if(self::$fullList[$id << 4] === null){
