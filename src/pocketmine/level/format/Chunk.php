@@ -212,7 +212,7 @@ class Chunk{
 	 * @param int|null $meta 0-15 if null, does not change
 	 */
 	public function setBlock(int $x, int $y, int $z, ?int $blockId = null, ?int $meta = null) : bool{
-		if($this->getSubChunk($y >> 4, true)->setBlock($x, $y & 0x0f, $z, $blockId !== null ? ($blockId & 0xff) : null, $meta !== null ? ($meta & 0x0f) : null)){
+		if($this->getSubChunk($y >> 4, true)->setBlock($x, $y & 0x0f, $z, $blockId, $meta !== null ? ($meta & 0x0f) : null)){
 			$this->hasChanged = true;
 			return true;
 		}
