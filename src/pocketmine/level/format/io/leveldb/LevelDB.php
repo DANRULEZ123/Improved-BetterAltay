@@ -306,20 +306,8 @@ class LevelDB extends BaseLevelProvider{
 			return null;
 		}
 
-		/** @var SubChunk[] $subChunks */
 		$subChunks = [];
-
-		/** @var int[] $heightMap */
-		$heightMap = [];
-		/** @var string $biomeIds */
-		$biomeIds = "";
-
-		/** @var bool $lightPopulated */
-		$lightPopulated = true;
-
 		$chunkVersion = ord($chunkVersionRaw);
-		$hasBeenUpgraded = $chunkVersion < self::CURRENT_LEVEL_CHUNK_VERSION;
-
 		$binaryStream = new BinaryStream();
 
 		switch($chunkVersion){
@@ -334,30 +322,15 @@ class LevelDB extends BaseLevelProvider{
 
 					$binaryStream->setBuffer($data, 0);
 					$subChunkVersion = $binaryStream->getByte();
-					if($subChunkVersion < self::CURRENT_LEVEL_SUBCHUNK_VERSION){
-						$hasBeenUpgraded = true;
-					}
 
 					switch($subChunkVersion){
 						case 0:
-							$blocks = $binaryStream->get(4096);
+							$blocks = $binaryStream->get(8192); // 16-bit block IDs
 							$blockData = $binaryStream->get(2048);
-							if($chunkVersion < 4){
-								$blockSkyLight = $binaryStream->get(2048);
-								$blockLight = $binaryStream->get(2048);
-								$hasBeenUpgraded = true; //drop saved light
-							}else{
-								//Mojang didn't bother changing the subchunk version when they stopped saving sky light -_-
-								$blockSkyLight = "";
-								$blockLight = "";
-								$lightPopulated = false;
-							}
-
-							$subChunks[$y] = new SubChunk($blocks, $blockData, $blockSkyLight, $blockLight);
+							$subChunks[$y] = new SubChunk($blocks, $blockData);
 							break;
 						default:
-							//TODO: set chunks read-only so the version on disk doesn't get overwritten
-							throw new UnsupportedChunkFormatException("don't know how to decode LevelDB subchunk format version $subChunkVersion");
+							throw new CorruptedChunkException("Unsupported subchunk version $subChunkVersion");
 					}
 				}
 
@@ -496,7 +469,7 @@ class LevelDB extends BaseLevelProvider{
 			}else{
 				$this->db->put($key,
 					chr(self::CURRENT_LEVEL_SUBCHUNK_VERSION) .
-					$subChunk->getBlockIdArray() .
+					$subChunk->getBlockIdArray() . // 16-bit block IDs
 					$subChunk->getBlockDataArray()
 				);
 			}
@@ -550,3 +523,4 @@ class LevelDB extends BaseLevelProvider{
 		unset($this->db);
 	}
 }
+
