@@ -82,7 +82,7 @@ class BlockFactory{
 	 * this if you need to reset the block factory back to its original defaults for whatever reason.
 	 */
 	public static function init() : void{
-		self::$fullList = new SplFixedArray(4096);
+		self::$fullList = new SplFixedArray(409600);
 
 		self::$light = new SplFixedArray(256);
 		self::$lightFilter = new SplFixedArray(256);
