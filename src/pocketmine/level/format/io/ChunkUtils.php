@@ -39,7 +39,7 @@ if(!extension_loaded('pocketmine_chunkutils')){
 		 * @return string length 4096
 		 */
 		final public static function reorderByteArray(string $array) : string{
-			$result = str_repeat("\x00", 4096);
+			$result = str_repeat("\x00", 8192); // Adjusted for 16-bit block IDs
 			if($array !== $result){
 				$i = 0;
 				for($x = 0; $x < 16; ++$x){
@@ -48,7 +48,8 @@ if(!extension_loaded('pocketmine_chunkutils')){
 						$yM = $z + 4096;
 						for($y = $z; $y < $yM; $y += 256){
 							$result[$i] = $array[$y];
-							++$i;
+							$result[$i + 1] = $array[$y + 1]; // Handle 16-bit values
+							$i += 2;
 						}
 					}
 				}
