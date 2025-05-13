@@ -41,7 +41,7 @@ class SubChunk implements SubChunkInterface{
 	private const ZERO_NIBBLE_ARRAY = ZERO_NIBBLE_ARRAY;
 
 	/** @var string */
-	protected $ids;
+	protected $ids; // Now stores 16-bit block IDs
 	/** @var string */
 	protected $data;
 	/** @var string */
@@ -58,7 +58,7 @@ class SubChunk implements SubChunkInterface{
 	}
 
 	public function __construct(string $ids = "", string $data = "", string $skyLight = "", string $blockLight = ""){
-		$this->ids = self::assignData($ids, 4096);
+		$this->ids = self::assignData($ids, 8192); // 16-bit per block, 4096 blocks per subchunk
 		$this->data = self::assignData($data, 2048);
 		$this->skyLight = self::assignData($skyLight, 2048, "\xff");
 		$this->blockLight = self::assignData($blockLight, 2048);
@@ -76,11 +76,14 @@ class SubChunk implements SubChunkInterface{
 	}
 
 	public function getBlockId(int $x, int $y, int $z) : int{
-		return ord($this->ids[($x << 8) | ($z << 4) | $y]);
+		$index = (($x << 8) | ($z << 4) | $y) * 2;
+		return (ord($this->ids[$index]) << 8) | ord($this->ids[$index + 1]);
 	}
 
 	public function setBlockId(int $x, int $y, int $z, int $id) : bool{
-		$this->ids[($x << 8) | ($z << 4) | $y] = chr($id);
+		$index = (($x << 8) | ($z << 4) | $y) * 2;
+		$this->ids[$index] = chr(($id >> 8) & 0xFF);
+		$this->ids[$index + 1] = chr($id & 0xFF);
 		return true;
 	}
 
@@ -99,8 +102,9 @@ class SubChunk implements SubChunkInterface{
 	}
 
 	public function getFullBlock(int $x, int $y, int $z) : int{
-		$i = ($x << 8) | ($z << 4) | $y;
-		return (ord($this->ids[$i]) << 4) | ((ord($this->data[$i >> 1]) >> (($y & 1) << 2)) & 0xf);
+		$blockId = $this->getBlockId($x, $y, $z);
+		$blockData = $this->getBlockData($x, $y, $z);
+		return ($blockId << 4) | $blockData;
 	}
 
 	public function setBlock(int $x, int $y, int $z, ?int $id = null, ?int $data = null) : bool{
