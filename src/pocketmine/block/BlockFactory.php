@@ -84,13 +84,13 @@ class BlockFactory{
 	public static function init() : void{
 		self::$fullList = new SplFixedArray(409600);
 
-		self::$light = new SplFixedArray(256);
-		self::$lightFilter = new SplFixedArray(256);
-		self::$solid = new SplFixedArray(256);
-		self::$hardness = new SplFixedArray(256);
-		self::$transparent = new SplFixedArray(256);
-		self::$diffusesSkyLight = new SplFixedArray(256);
-		self::$blastResistance = new SplFixedArray(256);
+		self::$light = new SplFixedArray(25600);
+		self::$lightFilter = new SplFixedArray(25600);
+		self::$solid = new SplFixedArray(25600);
+		self::$hardness = new SplFixedArray(25600);
+		self::$transparent = new SplFixedArray(25600);
+		self::$diffusesSkyLight = new SplFixedArray(25600);
+		self::$blastResistance = new SplFixedArray(25600);
 
 		self::registerBlock(new Air());
 		self::registerBlock(new Stone());
